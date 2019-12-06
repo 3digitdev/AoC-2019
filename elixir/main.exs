@@ -53,6 +53,30 @@ defmodule DayTwo do
         IO.puts("  Part 2: #{partTwo()}")
     end
 
+    defp partOne() do
+        case Inputs.readCommaSep("day2") do
+            {:ok, program} ->
+                program |> executeIntcode(12, 2)
+            {:error, reason} ->
+                IO.puts(reason)
+        end
+    end
+
+    defp partTwo() do
+        case Inputs.readCommaSep("day2") do
+            {:ok, program} ->
+                for noun <- Enum.to_list(0..99), verb <- Enum.to_list(0..99) do
+                    if program |> executeIntcode(noun, verb) == 19690720 do
+                        100 * noun + verb
+                    else
+                        0
+                    end
+                end |> Enum.reject(fn x -> x == 0 end) |> List.first
+            {:error, reason} ->
+                reason
+        end
+    end
+
     defp executeIntcode(inputs, noun, verb) do
         insts = Enum.map(inputs, fn x -> String.to_integer(x) end)
             |> List.update_at(1, fn _ -> noun end)
@@ -71,30 +95,6 @@ defmodule DayTwo do
             end
         end)
         List.first(final)
-    end
-
-    defp partTwo() do
-        case Inputs.readCommaSep("day2") do
-            {:ok, program} ->
-                for noun <- Enum.to_list(0..99), verb <- Enum.to_list(0..99) do
-                    if program |> executeIntcode(noun, verb) == 19690720 do
-                        100 * noun + verb
-                    else
-                        0
-                    end
-                end |> Enum.reject(fn x -> x == 0 end) |> List.first
-            {:error, reason} ->
-                reason
-        end
-    end
-
-    defp partOne() do
-        case Inputs.readCommaSep("day2") do
-            {:ok, program} ->
-                program |> executeIntcode(12, 2)
-            {:error, reason} ->
-                IO.puts(reason)
-        end
     end
 end
 
