@@ -7,6 +7,8 @@ import re
 import tables
 import hashes
 
+import intcode
+
 # --- HELPER FUNCTIONS --- #
 proc readMultiLineInput(day: string): seq[string] =
     return readFile(&"../inputs/{day}.txt").split('\n').filterIt(it != "")
@@ -32,35 +34,40 @@ proc opcode(i: int, inputs: seq[int], op: proc (a, b: int): int): seq[int] =
     result = inputs
     result[result[i+3]] = op(result[result[i+1]], result[result[i+2]])
 
-proc executeIntcode(inputs: var seq[int], noun, verb: int): int =
-    inputs[1] = noun
-    inputs[2] = verb
-    for i in countup(0, inputs.len, 4):
-        case inputs[i]:
-            of 1:
-                inputs = opcode(i, inputs, (x, y) => x + y)
-            of 2:
-                inputs = opcode(i, inputs, (x, y) => x * y)
-            of 99:
-                break
-            else:
-                echo &"oh shit"
-    return inputs[0]
+proc executeIntcode(program: var seq[string], noun, verb: string): int =
+    program[1] = noun
+    program[2] = verb
+    program.execute()
+    return program[0].parseInt
+    # for i in countup(0, inputs.len, 4):
+    #     case inputs[i]:
+    #         of 1:
+    #             inputs = opcode(i, inputs, (x, y) => x + y)
+    #         of 2:
+    #             inputs = opcode(i, inputs, (x, y) => x * y)
+    #         of 99:
+    #             break
+    #         else:
+    #             echo &"oh shit"
+    # return inputs[0]
 
-proc partOne(inputs: var seq[int]): int =
-    executeIntcode(inputs, 12, 2)
+proc partOne(inputs: var seq[string]): int =
+    executeIntcode(inputs, "12", "2")
 
-proc partTwo(original: seq[int]): int =
+proc partTwo(original: seq[string]): int =
     for noun in 0..99:
         for verb in 0..99:
             var inputs = original
-            if executeIntcode(inputs, noun, verb) == 19690720:
+            if executeIntcode(inputs, $noun, $verb) == 19690720:
                 return 100 * noun + verb
 
 proc dayTwo() =
-    var inputs = readCommaSepInput("day2").map(parseInt)
-    echo partOne(inputs)
-    echo partTwo(inputs)
+    var inputs = readCommaSepInput("day2")
+    echo "Part 1"
+    echo &"  {partOne(inputs)}"
+    inputs = readCommaSepInput("day2")
+    echo "Part 2"
+    echo &"  {partTwo(inputs)}"
 # --------------- #
 
 # --- DAY THREE --- #
@@ -189,8 +196,16 @@ proc dayFour() =
     echo &"Part Two: {partTwo.len}"
 # ---------------- #
 
+# --- DAY FIVE --- #
+proc dayFive() =
+    var program = readCommaSepInput("day5")
+    program.execute()
+    # echo program
+# ---------------- #
+
 if isMainModule:
     # echo dayOne()
     # dayTwo()
     # dayThree()
-    dayFour()
+    # dayFour()
+    dayFive()
